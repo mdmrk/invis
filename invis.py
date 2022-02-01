@@ -157,10 +157,10 @@ async def main():
     driver = FirefoxDriver()
 
     async with aiohttp.ClientSession() as session:
-        invis = await detect_news_letter_update(session)
-        output_invis(invis)
         driver.init()
         driver.open()
+        invis = await detect_news_letter_update(session)
+        output_invis(invis)
         driver.fill(invis)
 
 
