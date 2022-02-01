@@ -157,8 +157,7 @@ async def main():
     driver = FirefoxDriver()
 
     async with aiohttp.ClientSession() as session:
-        invis = await get_invis(session, url, BeautifulSoup(await get_web_page(session, url), "html.parser"))
-        # invis = await detect_news_letter_update(session)
+        invis = await detect_news_letter_update(session)
         output_invis(invis)
         driver.init()
         driver.open()
