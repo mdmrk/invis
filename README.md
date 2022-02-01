@@ -11,7 +11,7 @@ Script semi-automático para canjear un código de invitación nuevo en ForoCoch
 
 ### ¿Como lo ejecuto?
 ##### A partir del código fuente
-Instala (Python3)[https://www.python.org/downloads/] y en tu ordenador.
+Instala [Python3](https://www.python.org/downloads/) y en tu ordenador.
 
 ```
 git clone https://github.com/mariod8/invis
