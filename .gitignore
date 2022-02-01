@@ -1,2 +1,6 @@
-geckodriver.log
-invis.txt
+*
+!invis.py
+!firefox_driver
+!README.md
+!requirements.txt
+!.gitignore
