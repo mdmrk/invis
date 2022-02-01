@@ -1,0 +1,4 @@
+aiohttp==3.8.1
+beautifulsoup4==4.10.0
+nostril==1.2.0
+selenium==4.1.0
