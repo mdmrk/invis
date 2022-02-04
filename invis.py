@@ -121,7 +121,8 @@ def output_invis(invis: [str]):
         o.close()
         print("[!] LAS INVIS ESTÁN EN EL FICHERO 'invis.txt'")
     except OSError:
-        print(f"Error al escribir invis al archivo... mostrando por pantalla\n\n{res}")
+        print(
+            f"Error al escribir invis al archivo... mostrando por pantalla\n\n{res}")
 
 
 async def get_invis(session: ClientSession, url: str) -> [str]:
@@ -152,8 +153,8 @@ async def detect_news_letter_update(session: ClientSession) -> str:
         posts = news_letter_bs.find_all("a", "issue-cover")
         new_hash = get_hash(str(posts))
 
-        #if new_hash == old_hash:
-         #   continue
+        if new_hash == old_hash:
+            continue
         print("[!] NUEVO POST\n" * 10)
         new_post_url = posts[0]["href"]
         return "https://www.getrevue.co" + new_post_url
