@@ -12,7 +12,7 @@ Script semi-automático para canjear un código de invitación nuevo en ForoCoch
 Esto está pensado para ejecutarse en Linux.
 
 #### A partir del código fuente
-Instala [Python3](https://www.python.org/downloads/) y en tu ordenador. Si quieres que el script escriba en el recuadro de canjear código por ti necesitas tener instalado Firefox o cambiar el driver de Selenium al que te apetezca.
+Instala [Python3](https://www.python.org/downloads/). Si quieres que el script escriba en el recuadro de canjear código por ti necesitas tener instalado Firefox o cambiar el driver de Selenium al que te apetezca.
 
 ```
 git clone https://github.com/mariod8/invis
