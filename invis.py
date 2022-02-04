@@ -121,8 +121,7 @@ def output_invis(invis: [str]):
         o.close()
         print("[!] LAS INVIS ESTÁN EN EL FICHERO 'invis.txt'")
     except OSError:
-        print("Error al escribir invis al archivo... mostrando por pantalla")
-        print(res)
+        print(f"Error al escribir invis al archivo... mostrando por pantalla\n\n{res}")
 
 
 async def get_invis(session: ClientSession, url: str) -> [str]:
