@@ -1,4 +1,5 @@
 import re
+import os
 import asyncio
 import config
 import hashlib
@@ -28,6 +29,7 @@ class FirefoxDriver():
         if config.use_auto_web_browser:
             self.driver = webdriver.Firefox(executable_path="./firefox_driver")
             self.driver.get(EXCHANGE)
+            os.system('cls' if os.name == 'nt' else 'clear')
 
     def fill(self, invis: [str]):
         if len(invis) and config.use_auto_web_browser:
@@ -113,9 +115,14 @@ def output_invis(invis: [str]):
 
     for invi in invis:
         res += f"{invi}\n\n"
-    with open("invis.txt", "w") as o:
-        o.write(res)
-    o.close()
+    try:
+        with open("invis.txt", "w") as o:
+            o.write(res)
+        o.close()
+        print("[!] LAS INVIS ESTÁN EN EL FICHERO 'invis.txt'")
+    except OSError:
+        print("Error al escribir invis al archivo... mostrando por pantalla")
+        print(res)
 
 
 async def get_invis(session: ClientSession, url: str) -> [str]:
@@ -132,6 +139,8 @@ async def get_invis(session: ClientSession, url: str) -> [str]:
         r"(\w\.){5,}\w", post_content, operation, requires_upper_lower, InviType.DOT))
     invis.extend(scrap_invis(
         r"\b[\w\d]{9}\b", post_content, operation, requires_upper_lower, InviType.VOID))
+    if len(invis):
+        print("[!] SE HAN ENCONTRADO INVIS")
     return invis
 
 
@@ -148,6 +157,7 @@ async def detect_news_letter_update(session: ClientSession) -> str:
             continue
         if not len(posts):
             continue
+        print("[!] NUEVO POST\n" * 10)
         new_post_url = posts[0]["href"]
         return "https://www.getrevue.co" + new_post_url
 
