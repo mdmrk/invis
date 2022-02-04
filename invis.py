@@ -155,8 +155,8 @@ async def main():
 
     async with ClientSession() as session:
         driver.init()
-        # new_post_url = await detect_news_letter_update(session)
-        invis = await get_invis(session, "https://www.getrevue.co/profile/Forocoches/issues/esta-semana-en-forocoches-publicacion-50-1003900")
+        new_post_url = await detect_news_letter_update(session)
+        invis = await get_invis(session, new_post_url)
         output_invis(invis)
         driver.fill(invis)
 
