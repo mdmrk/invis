@@ -1,5 +1,6 @@
 import re
 import asyncio
+import config
 import hashlib
 from enum import Enum
 from time import sleep
@@ -24,11 +25,12 @@ class FirefoxDriver():
         self.driver = None
 
     def init(self):
-        self.driver = webdriver.Firefox(executable_path="./firefox_driver")
-        self.driver.get(EXCHANGE)
+        if config.use_auto_web_browser:
+            self.driver = webdriver.Firefox(executable_path="./firefox_driver")
+            self.driver.get(EXCHANGE)
 
     def fill(self, invis: [str]):
-        if len(invis):
+        if len(invis) and config.use_auto_web_browser:
             self.driver.find_element_by_name("codigo").send_keys(invis[0])
 
 
