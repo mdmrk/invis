@@ -24,8 +24,6 @@ class FirefoxDriver():
 
     def init(self):
         self.driver = webdriver.Firefox(executable_path="./firefox_driver")
-
-    def open(self):
         self.driver.get(EXCHANGE)
 
     def fill(self, invis: [str]):
@@ -42,14 +40,13 @@ async def get_web_page(session, url: str):
         return await r.text()
 
 
-def get_upper_lower(strings: [str]) -> bool:
-    for string in strings:
-        if re.search(r"MAY[UÚ]S|MIN[UÚ]S", string.text.upper()):
-            return True
+def get_upper_lower(post_content: str) -> bool:
+    if re.search(r"MAY[UÚ]S|MIN[UÚ]S", post_content.upper()):
+        return True
     return False
 
 
-def upper_lower(string: str):
+def upper_lower(string: str) -> str:
     res = ""
 
     for char in string:
@@ -62,18 +59,17 @@ def upper_lower(string: str):
     return res
 
 
-def get_operation(strings: [str]) -> int:
+def get_operation(post_content: str) -> int:
     op = 0
 
-    for string in strings:
-        if re.search(r"\+1", string.text):
-            op = 1
-        elif re.search(r"-1", string.text):
-            op = -1
+    if re.search(r"\+1", post_content):
+        op = 1
+    elif re.search(r"-1", post_content):
+        op = -1
     return op
 
 
-def operate(string: str, number: int):
+def operate(string: str, number: int) -> str:
     invi = ""
 
     for char in string:
@@ -84,26 +80,23 @@ def operate(string: str, number: int):
     return re.sub(r"[\W_]", "", invi).strip()
 
 
-def extract_invi_from_str(pattern: str, string: str, type: InviType, soup: BeautifulSoup) -> [str]:
-    content = soup.find_all("div", "revue-p")
+def scrap_invis(pattern: str, string: str, operation: int, requires_upper_lower: bool, type: InviType) -> [str]:
     matches = re.finditer(pattern, string)
-    number = get_operation(content)
-    ul = get_upper_lower(content)
     invis = []
 
     if type == InviType.UNDERSCORE:
         for match in matches:
-            invis.append(operate(match.group(0), number))
+            invis.append(operate(match.group(0), operation))
     elif type == InviType.DOT:
         for match in matches:
-            invis.append(operate(match.group(0), number))
+            invis.append(operate(match.group(0), operation))
     elif type == InviType.VOID:
         for match in matches:
             match = match.group(0)
 
             try:
                 if nonsense(match):
-                    if ul:
+                    if requires_upper_lower:
                         invis.append(upper_lower(match))
                     else:
                         invis.append(match)
@@ -116,26 +109,30 @@ def output_invis(invis: [str]):
     res = ""
 
     for invi in invis:
-        res += invi + "\n\n"
+        res += f"{invi}\n"
     with open("invis.txt", "w") as o:
         o.write(res)
     o.close()
 
 
-async def get_invis(session, url: str, soup: BeautifulSoup):
+async def get_invis(session: ClientSession, url: str) -> [str]:
     post_raw = await get_web_page(session, url)
+    post_bs = BeautifulSoup(post_raw, "html.parser")
+    post_content = str(soup.find_all("div", "revue-p"))
+    operation = get_operation(post_content)
+    requires_upper_lower = get_upper_lower(post_content)
     invis = []
 
-    invis.extend(extract_invi_from_str(
-        r"(\w_){5,}\w", post_raw, InviType.UNDERSCORE, soup))
-    invis.extend(extract_invi_from_str(
-        r"(\w\.){5,}\w", post_raw, InviType.DOT, soup))
-    invis.extend(extract_invi_from_str(
-        r"\b[\w\d]{9}\b", post_raw, InviType.VOID, soup))
+    invis.extend(scrap_invis(
+        r"(\w_){5,}\w", post_raw, operation, requires_upper_lower, InviType.UNDERSCORE))
+    invis.extend(scrap_invis(
+        r"(\w\.){5,}\w", post_raw, post_bs, operation, requires_upper_lower, InviType.DOT))
+    invis.extend(scrap_invis(
+        r"\b[\w\d]{9}\b", post_raw, post_bs, operation, requires_upper_lower, InviType.VOID))
     return invis
 
 
-async def detect_news_letter_update(session):
+async def detect_news_letter_update(session: ClientSession) -> str:
     old_hash = get_hash(str(BeautifulSoup(await get_web_page(session, URL_NEWS_LETTER), "html.parser").find_all("a", "issue-cover")))
 
     while True:
@@ -149,17 +146,16 @@ async def detect_news_letter_update(session):
         if not len(posts):
             continue
         new_post_url = posts[0]["href"]
-        return await get_invis(session, "https://www.getrevue.co" + new_post_url, news_letter_bs)
+        return "https://www.getrevue.co" + new_post_url
 
 
 async def main():
-    url = "https://www.getrevue.co/profile/Forocoches/issues/esta-semana-en-forocoches-publicacion-30-752589"
     driver = FirefoxDriver()
 
     async with aiohttp.ClientSession() as session:
         driver.init()
-        driver.open()
-        invis = await detect_news_letter_update(session)
+        new_post_url = await detect_news_letter_update(session)
+        invis = await get_invis(session, new_post_url)
         output_invis(invis)
         driver.fill(invis)
 

@@ -1,5 +1,4 @@
 # Invis
-
 Script semi-automático para canjear un código de invitación nuevo en ForoCoches. Los saca de el NewsLetter.
 
 ### ¿Como funciona?
@@ -10,8 +9,10 @@ Script semi-automático para canjear un código de invitación nuevo en ForoCoch
 5. A continuación, abre un navegador web (Firefox) y te copia una invi en el recuadro de canjeo para hacerlo un poco más rápido, y luego **TÚ resuelves el Captcha**.
 
 ### ¿Como lo ejecuto?
-##### A partir del código fuente
-Instala [Python3](https://www.python.org/downloads/) y en tu ordenador.
+Esto está pensado para ejecutarse en Linux.
+
+#### A partir del código fuente
+Instala [Python3](https://www.python.org/downloads/) y en tu ordenador. Si quieres que el script escriba en el recuadro de canjear código por ti necesitas tener instalado Firefox o cambiar el driver de Selenium al que te apetezca.
 
 ```
 git clone https://github.com/mariod8/invis
@@ -19,6 +20,3 @@ cd invis
 pip install -r requirements.txt
 python3 invis.py
 ```
-
-##### A partir del ejecutable
-En el apartado Releases del GitHub puedes bajarte el .exe del programa
