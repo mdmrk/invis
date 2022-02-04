@@ -152,10 +152,8 @@ async def detect_news_letter_update(session: ClientSession) -> str:
         posts = news_letter_bs.find_all("a", "issue-cover")
         new_hash = get_hash(str(posts))
 
-        if new_hash == old_hash:
-            continue
-        if not len(posts):
-            continue
+        #if new_hash == old_hash:
+         #   continue
         print("[!] NUEVO POST\n" * 10)
         new_post_url = posts[0]["href"]
         return "https://www.getrevue.co" + new_post_url
