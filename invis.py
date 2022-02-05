@@ -139,8 +139,6 @@ async def get_invis(session: ClientSession, url: str) -> [str]:
         r"(\w\.){5,}\w", post_content, operation, requires_upper_lower, InviType.DOT))
     invis.extend(scrap_invis(
         r"\b[\w\d]{9}\b", post_content, operation, requires_upper_lower, InviType.VOID))
-    if len(invis):
-        print("[!] SE HAN ENCONTRADO INVIS")
     return invis
 
 
@@ -167,8 +165,12 @@ async def main():
         driver.init()
         new_post_url = await detect_news_letter_update(session)
         invis = await get_invis(session, new_post_url)
-        output_invis(invis)
-        driver.fill(invis)
+        if len(invis):
+            print("[!] SE HAN ENCONTRADO INVIS")
+            output_invis(invis)
+            driver.fill(invis)
+        else:
+            print(f"No se han encontrado invis... prueba a buscar tú manualmente:\n{new_post_url}")
 
 
 if __name__ == "__main__":
