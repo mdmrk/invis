@@ -1,14 +1,12 @@
 import re
-import os
 import asyncio
-import config
 import hashlib
 from enum import Enum
 from time import sleep
 from nostril import nonsense
 from aiohttp import ClientSession
-from selenium import webdriver as webdriver
 from bs4 import BeautifulSoup
+import random
 
 
 URL_NEWS_LETTER = "https://www.getrevue.co/profile/Forocoches"
@@ -19,21 +17,6 @@ class InviType(Enum):
     UNDERSCORE = 0,
     DOT = 1,
     VOID = 2
-
-
-class FirefoxDriver():
-    def __init__(self):
-        self.driver = None
-
-    def init(self):
-        if config.use_auto_web_browser:
-            self.driver = webdriver.Firefox(executable_path="./firefox_driver")
-            self.driver.get(EXCHANGE)
-            os.system('cls' if os.name == 'nt' else 'clear')
-
-    def fill(self, invis: [str]):
-        if len(invis) and config.use_auto_web_browser:
-            self.driver.find_element_by_name("codigo").send_keys(invis[0])
 
 
 def get_hash(s: str) -> str:
@@ -66,11 +49,13 @@ def upper_lower(string: str) -> str:
 
 def get_operation(post_content: str) -> int:
     op = 0
+    add = re.search(r"\+([0-9])", post_content)
+    sub = re.search(r"-([0-9])", post_content)
 
-    if re.search(r"\+1", post_content):
-        op = 1
-    elif re.search(r"-1", post_content):
-        op = -1
+    if add:
+        op = int(add.group(1))
+    elif sub:
+        op = -int(sub.group(1))
     return op
 
 
@@ -85,7 +70,7 @@ def operate(string: str, operation: int) -> str:
     return re.sub(r"[\W_]", "", invi).strip()
 
 
-def scrap_invis(pattern: str, string: str, operation: int, requires_upper_lower: bool, type: InviType) -> [str]:
+def scrap_invis(pattern: str, string: str, operation: int, requires_upper_lower: bool, type: InviType):
     matches = re.finditer(pattern, string)
     invis = []
 
@@ -110,7 +95,7 @@ def scrap_invis(pattern: str, string: str, operation: int, requires_upper_lower:
     return invis
 
 
-def output_invis(invis: [str]):
+def output_invis(invis):
     res = ""
 
     for invi in invis:
@@ -120,12 +105,14 @@ def output_invis(invis: [str]):
             o.write(res)
         o.close()
         print("[!] LAS INVIS ESTÁN EN EL FICHERO 'invis.txt'")
+        print("Invis:\n\n")
+        print(res)
     except OSError:
         print(
             f"Error al escribir invis al archivo... mostrando por pantalla\n\n{res}")
 
 
-async def get_invis(session: ClientSession, url: str) -> [str]:
+async def get_invis(session: ClientSession, url: str):
     post_raw = await get_web_page(session, url)
     post_bs = BeautifulSoup(post_raw, "html.parser")
     post_content = str(post_bs.find_all("div", "revue-p"))
@@ -146,6 +133,7 @@ async def detect_news_letter_update(session: ClientSession) -> str:
     old_hash = get_hash(str(BeautifulSoup(await get_web_page(session, URL_NEWS_LETTER), "html.parser").find_all("a", "issue-cover")))
 
     while True:
+        sleep(random.uniform(12, 16))
         news_letter_raw = await get_web_page(session, URL_NEWS_LETTER)
         news_letter_bs = BeautifulSoup(news_letter_raw, "html.parser")
         posts = news_letter_bs.find_all("a", "issue-cover")
@@ -159,18 +147,15 @@ async def detect_news_letter_update(session: ClientSession) -> str:
 
 
 async def main():
-    driver = FirefoxDriver()
-
     async with ClientSession() as session:
-        driver.init()
         new_post_url = await detect_news_letter_update(session)
         invis = await get_invis(session, new_post_url)
         if len(invis):
             print("[!] SE HAN ENCONTRADO INVIS")
             output_invis(invis)
-            driver.fill(invis)
         else:
-            print(f"No se han encontrado invis... prueba a buscar tú manualmente:\n{new_post_url}")
+            print(
+                f"No se han encontrado invis... prueba a buscar tú manualmente:\n{new_post_url}")
 
 
 if __name__ == "__main__":
