@@ -105,7 +105,7 @@ def output_invis(invis):
             o.write(res)
         o.close()
         print("[!] LAS INVIS ESTÁN EN EL FICHERO 'invis.txt'")
-        print("Invis:\n\n")
+        print("\nInvis:")
         print(res)
     except OSError:
         print(
@@ -143,7 +143,9 @@ async def detect_news_letter_update(session: ClientSession) -> str:
             continue
         print("[!] NUEVO POST\n" * 10)
         new_post_url = posts[0]["href"]
-        return "https://www.getrevue.co" + new_post_url
+        new_post_full_url = "https://www.getrevue.co" + new_post_url
+        print(new_post_full_url, "\n")
+        return new_post_full_url
 
 
 async def main():
