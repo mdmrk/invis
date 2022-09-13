@@ -16,7 +16,8 @@ EXCHANGE = "https://www.forocoches.com/codigo/"
 class InviType(Enum):
     UNDERSCORE = 0,
     DOT = 1,
-    VOID = 2
+    VOID = 2,
+    WHITESPACE = 3
 
 
 def get_hash(s: str) -> str:
@@ -70,16 +71,20 @@ def operate(string: str, operation: int) -> str:
     return re.sub(r"[\W_]", "", invi).strip()
 
 
+def spelled_numbers(string: str) -> str:
+    return string.replace("(CERO)", "0").replace("(UNO)", "1").replace("(DOS)", "2").replace("(TRES)", "3").replace("(CUATRO)", "4").replace("(CINCO)", "5").replace("(SEIS)", "6").replace("(SIETE)", "7").replace("(OCHO)", "8").replace("(NUEVE)", "9")
+
+
 def scrap_invis(pattern: str, string: str, operation: int, requires_upper_lower: bool, type: InviType):
     matches = re.finditer(pattern, string)
     invis = []
 
     if type == InviType.UNDERSCORE:
         for match in matches:
-            invis.append(operate(match.group(0), operation))
+            invis.append(operate(spelled_numbers(match.group(0)), operation))
     elif type == InviType.DOT:
         for match in matches:
-            invis.append(operate(match.group(0), operation))
+            invis.append(operate(spelled_numbers(match.group(0)), operation))
     elif type == InviType.VOID:
         for match in matches:
             match = match.group(0)
@@ -126,6 +131,8 @@ async def get_invis(session: ClientSession, url: str):
         r"(\w\.){5,}\w", post_content, operation, requires_upper_lower, InviType.DOT))
     invis.extend(scrap_invis(
         r"\b[\w\d]{9}\b", post_content, operation, requires_upper_lower, InviType.VOID))
+    invis.extend(scrap_invis(
+        r"(\w\s){5,}\w", post_content, operation, requires_upper_lower, InviType.WHITESPACE))
     return invis
 
 
